@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:weather_app/additional_info_item.dart';
 import 'package:weather_app/forecast_item.dart';
 import 'package:http/http.dart' as http;
@@ -63,7 +64,9 @@ class _WeatherPageState extends State<WeatherPage> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              // print("refresh btn clicked");
+              // i called set state to rebuild the buid function and inside it we have getCurrentWeather() , so it has colled again ,
+              // and gets the new data from API .
+              setState(() { });
             },
           ),
         ],
@@ -95,15 +98,6 @@ class _WeatherPageState extends State<WeatherPage> {
           String pressure = dataRoot['pressure_in'].toString();
 
           final forecastList = data['forecast']['forecastday'][0]['hour'];
-          List<Widget> hourlyForecastWidgets = [];
-
-          for (final hourForcast in forecastList) {
-            final dateTime = hourForcast['time'].toString();
-            final time = dateTime.split(' ')[1];
-            final hourTemp = hourForcast['temp_c'].toString();
-
-            hourlyForecastWidgets.add(HourlyForecastItem(time, Icons.cloud, "$hourTemp℃"));
-          }
 
           return Padding(
             padding: const EdgeInsets.all(20),
@@ -137,7 +131,7 @@ class _WeatherPageState extends State<WeatherPage> {
                           Text(
                             currentCondition,
                             style: const TextStyle(
-                              fontSize: 26,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -154,11 +148,25 @@ class _WeatherPageState extends State<WeatherPage> {
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: hourlyForecastWidgets,
-                  ),
+                SizedBox(
+                  height: 120,
+                  child: ListView.builder(
+                      itemCount: forecastList.length,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        final forecastList =
+                            data['forecast']['forecastday'][0]['hour'];
+
+                        final timeObj =
+                            DateTime.parse(forecastList[index]['time']);
+                        final time = DateFormat.Hm().format(timeObj).toString();
+
+                        final hourTemp =
+                            forecastList[index]['temp_c'].toString();
+
+                        return HourlyForecastItem(
+                            time, Icons.cloud, "$hourTemp℃");
+                      }),
                 ),
                 const SizedBox(height: 20),
                 // additional informations
